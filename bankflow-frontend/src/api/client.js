@@ -1,12 +1,14 @@
-// Thin fetch wrapper around the BankFlow Spring Boot API.
-// Every request/response shape here mirrors the actual backend DTOs —
-// nothing here is invented.
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 
-// Fallback copy used only when the backend genuinely returns nothing
-// meaningful (e.g. a network failure) — matches the pattern the app
-// spec asked for, keyed by HTTP status.
+const TOKEN_KEY = "bankflow.token";
+const USER_KEY = "bankflow.user";
+
+export const tokenStore = {
+  get: () => localStorage.getItem(TOKEN_KEY),
+  set: (token) => localStorage.setItem(TOKEN_KEY, token),
+  clear: () => localStorage.removeItem(TOKEN_KEY),
+};
+
 const STATUS_FALLBACK = {
   400: "Please check the information you entered.",
   401: "Your credentials are incorrect.",
@@ -23,11 +25,18 @@ export class ApiError extends Error {
 }
 
 async function request(path, { method = "GET", body, signal } = {}) {
+  const isAuthPath = path.startsWith("/users/");
+  const token = tokenStore.get();
+
+  const headers = {};
+  if (body) headers["Content-Type"] = "application/json";
+  if (token && !isAuthPath) headers.Authorization = `Bearer ${token}`;
+
   let response;
   try {
     response = await fetch(`${BASE_URL}${path}`, {
       method,
-      headers: body ? { "Content-Type": "application/json" } : undefined,
+      headers,
       body: body ? JSON.stringify(body) : undefined,
       signal,
     });
@@ -38,19 +47,23 @@ async function request(path, { method = "GET", body, signal } = {}) {
     );
   }
 
-  // 204 / empty body
   const text = await response.text();
   let data = null;
   if (text) {
     try {
       data = JSON.parse(text);
     } catch {
-      data = text; // e.g. the plain-string transfer success response
+      data = text;
     }
   }
 
+  if (response.status === 401 && !isAuthPath) {
+    tokenStore.clear();
+    localStorage.removeItem(USER_KEY);
+    window.location.assign("/login");
+  }
+
   if (!response.ok) {
-    // Backend's GlobalExceptionHandler returns { message, status, timestamp }
     const message =
       (data && typeof data === "object" && data.message) ||
       STATUS_FALLBACK[response.status] ||

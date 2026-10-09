@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { tokenStore } from "../api/client";
 
 const STORAGE_KEY = "bankflow.user";
 
@@ -24,10 +25,17 @@ export function AuthProvider({ children }) {
 
   const value = useMemo(
     () => ({
-      user, // UserResponse { id, name, email, phone } or null
-      isAuthenticated: Boolean(user),
-      login: (userResponse) => setUser(userResponse),
-      logout: () => setUser(null),
+      user,
+      isAuthenticated: Boolean(user && tokenStore.get()),
+      login: (authResponse) => {
+        const { token, ...profile } = authResponse;
+        tokenStore.set(token);
+        setUser(profile);
+      },
+      logout: () => {
+        tokenStore.clear();
+        setUser(null);
+      },
     }),
     [user]
   );

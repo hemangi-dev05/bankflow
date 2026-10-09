@@ -15,7 +15,7 @@ export default function Login() {
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
-  const [status, setStatus] = useState("idle"); // idle | loading | error
+  const [status, setStatus] = useState("idle");
   const [formError, setFormError] = useState("");
 
   function validate() {
@@ -35,7 +35,7 @@ export default function Login() {
     try {
       const user = await authApi.login(form);
       login(user);
-      notify(`Welcome back, ${user.name.split(" ")[0]}.`);
+      notify(`Welcome back, ${(user.name || "").split(" ")[0] || "there"}.`);
       const redirectTo = location.state?.from?.pathname || "/app";
       navigate(redirectTo, { replace: true });
     } catch (err) {
