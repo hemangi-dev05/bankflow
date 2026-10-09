@@ -1,0 +1,53 @@
+.state-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5);
+}
+
+.state-skeleton-row {
+  height: 56px;
+  border-radius: var(--radius-md);
+}
+.state-skeleton-row + .state-skeleton-row {
+  margin-top: var(--space-2);
+}
+
+.state-empty,
+.state-error {
+  align-items: center;
+  text-align: center;
+  padding: var(--space-8) var(--space-5);
+  color: var(--color-text-muted);
+}
+
+.state-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-faint);
+}
+
+.state-error .state-icon {
+  color: var(--color-negative);
+  border-color: var(--color-negative-soft);
+  background: var(--color-negative-soft);
+}
+
+.state-empty h3,
+.state-error h3 {
+  font-size: 16px;
+  color: var(--color-ink);
+}
+
+.state-empty p,
+.state-error p {
+  font-size: 13.5px;
+  max-width: 320px;
+}

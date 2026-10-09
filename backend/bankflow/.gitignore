@@ -1,0 +1,27 @@
+# Gradle
+.gradle/
+build/
+
+# Java compiled files
+*.class
+out/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Environment / secrets
+.env
+*.env
+
+# OS generated files
+.DS_Store
+Thumbs.db

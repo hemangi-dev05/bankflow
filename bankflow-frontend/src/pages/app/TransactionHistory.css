@@ -1,0 +1,47 @@
+.transaction-history-controls {
+  max-width: 340px;
+  margin-bottom: var(--space-4);
+}
+
+.transaction-filter-row {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.transaction-filter {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.transaction-filter:hover {
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+.transaction-filter-active {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: #fff;
+}
+
+.transaction-list-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.mini-statement-link {
+  display: inline-block;
+  margin-top: var(--space-4);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+.mini-statement-link:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,106 @@
+.piggy-page {
+  max-width: 620px;
+}
+
+.piggy-balance-card {
+  background: var(--color-accent-soft);
+  border: 1px solid #cfe3dd;
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-7);
+}
+
+.piggy-balance-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-accent-strong);
+  margin-bottom: var(--space-2);
+}
+
+.piggy-balance-value {
+  display: block;
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--color-accent-ink);
+}
+
+.piggy-balance-sub {
+  display: block;
+  font-size: 12.5px;
+  color: var(--color-accent-strong);
+  margin-top: var(--space-2);
+}
+
+.piggy-balance-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.piggy-explainer h2 {
+  font-size: 16px;
+  margin-bottom: var(--space-3);
+  margin-top: var(--space-6);
+}
+.piggy-explainer h2:first-child {
+  margin-top: 0;
+}
+
+.piggy-explainer > p {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.piggy-example {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  margin-top: var(--space-4);
+}
+
+.piggy-example-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-faint);
+}
+
+.piggy-example-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-2) 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+.piggy-example-row:last-child {
+  border-bottom: none;
+}
+.piggy-example-highlight span:last-child {
+  color: var(--color-positive);
+  font-weight: 600;
+}
+
+.piggy-terms {
+  margin: 0;
+  padding-left: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.piggy-terms li {
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
