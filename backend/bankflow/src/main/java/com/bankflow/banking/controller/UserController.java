@@ -6,6 +6,8 @@ import com.bankflow.banking.dto.ResetPasswordRequest;
 import com.bankflow.banking.dto.SignupRequest;
 import com.bankflow.banking.dto.UserResponse;
 import com.bankflow.banking.entity.User;
+import com.bankflow.banking.exception.InvalidCredentialsException;
+import com.bankflow.banking.repository.UserRepository;
 import com.bankflow.banking.security.CustomUserDetailsService;
 import com.bankflow.banking.security.JwtService;
 import com.bankflow.banking.service.UserService;
@@ -25,15 +27,18 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private final UserRepository userRepository;
 
     public UserController(UserService userService,
                            AuthenticationManager authenticationManager,
                            JwtService jwtService,
-                           CustomUserDetailsService userDetailsService) {
+                           CustomUserDetailsService userDetailsService,
+                           UserRepository userRepository) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/signup")
@@ -49,7 +54,9 @@ public class UserController {
         );
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String token = jwtService.generateToken(userDetails);
-        return ResponseEntity.ok(new AuthResponse(token));
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password!"));
+        return ResponseEntity.ok(new AuthResponse(token, user));
     }
 
     @PostMapping("/reset-password")

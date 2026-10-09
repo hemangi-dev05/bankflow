@@ -3,6 +3,7 @@ package com.bankflow.banking.service.impl;
 import com.bankflow.banking.dto.LoginRequest;
 import com.bankflow.banking.dto.ResetPasswordRequest;
 import com.bankflow.banking.dto.SignupRequest;
+import com.bankflow.banking.entity.Role;
 import com.bankflow.banking.entity.User;
 import com.bankflow.banking.exception.DuplicateEmailException;
 import com.bankflow.banking.exception.InvalidCredentialsException;
@@ -28,7 +29,7 @@ public class UserServiceImpl implements UserService {
         });
 
         User user = new User(null, request.getName(), request.getEmail(),
-                encoder.encode(request.getPassword()), request.getPhone());
+                encoder.encode(request.getPassword()), request.getPhone(), Role.USER);
 
         return userRepository.save(user);
     }
@@ -47,9 +48,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User resetPassword(ResetPasswordRequest request) {
-        // Same generic message whether the email doesn't exist or the phone
-        // doesn't match it — don't let this endpoint be used to probe which
-        // emails are registered.
+      
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException(
                         "We couldn't verify that email and phone number combination."));
