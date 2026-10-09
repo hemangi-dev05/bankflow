@@ -34,3 +34,6 @@
   font-weight: 600;
   color: var(--color-ink);
 }
+.action-tile-icon svg { display: block; }
+.action-tile { transition: box-shadow 0.15s ease; }
+.action-tile:hover { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); }

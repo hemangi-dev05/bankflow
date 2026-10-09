@@ -1,3 +1,4 @@
+import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight, Send, PiggyBank } from "lucide-react";
 import {
   TRANSACTION_LABELS,
   formatDateTime,
@@ -7,18 +8,20 @@ import {
 import "./TransactionRow.css";
 
 const ICONS = {
-  DEPOSIT: "↓",
-  WITHDRAW: "↑",
-  TRANSFER: "→",
-  PAY: "•",
+  DEPOSIT: ArrowDownLeft,
+  WITHDRAW: ArrowUpRight,
+  TRANSFER: ArrowLeftRight,
+  PAY: Send,
+  PIGGY_CONTRIBUTION: PiggyBank,
 };
 
 export default function TransactionRow({ transaction, onClick }) {
   const debit = isDebit(transaction.type);
+  const Icon = ICONS[transaction.type] || ArrowLeftRight;
   return (
     <button className="txn-row" onClick={() => onClick?.(transaction)}>
       <span className={`txn-row-icon ${debit ? "txn-row-icon-debit" : "txn-row-icon-credit"}`}>
-        {ICONS[transaction.type] || "•"}
+        <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
       </span>
       <span className="txn-row-main">
         <span className="txn-row-type">{TRANSACTION_LABELS[transaction.type] || transaction.type}</span>

@@ -65,3 +65,5 @@
   font-weight: 600;
   flex-shrink: 0;
 }
+.txn-row-icon { display: inline-flex; align-items: center; justify-content: center; }
+.txn-row-icon svg { display: block; }

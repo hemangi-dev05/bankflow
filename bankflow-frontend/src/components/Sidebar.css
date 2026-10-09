@@ -43,3 +43,5 @@
     display: none;
   }
 }
+.sidebar-icon { display: inline-flex; align-items: center; justify-content: center; }
+.sidebar-link { gap: 10px; }

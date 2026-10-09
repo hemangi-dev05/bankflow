@@ -88,3 +88,27 @@
 .account-card-link:hover {
   text-decoration: underline;
 }
+
+.account-card-type-row { display: inline-flex; align-items: center; gap: 8px; }
+.account-card-number-row,
+.account-card-balance-row { display: flex; align-items: center; gap: 8px; }
+.account-card-top { gap: 12px; align-items: flex-start; }
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+}
+.icon-btn:hover { opacity: 1; background: rgba(127, 127, 127, 0.15); }
+.icon-btn:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+.account-card-link { display: inline-flex; align-items: center; gap: 6px; }

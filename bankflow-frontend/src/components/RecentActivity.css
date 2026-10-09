@@ -1,0 +1,35 @@
+.recent-activity { margin-top: 32px; }
+.recent-activity-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.recent-activity-all { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+
+.recent-activity-card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.recent-activity-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 20px;
+  text-align: center;
+  opacity: 0.75;
+}
+.recent-activity-empty p { margin: 0; max-width: 360px; }
+
+.recent-activity-skeletons { padding: 16px; display: grid; gap: 12px; }
+.recent-activity-skeletons span {
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.05), rgba(0,0,0,0.1), rgba(0,0,0,0.05));
+  background-size: 200% 100%;
+  animation: recent-shimmer 1.2s ease-in-out infinite;
+}
+@keyframes recent-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .recent-activity-skeletons span { animation: none; }
+}

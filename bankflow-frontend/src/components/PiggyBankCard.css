@@ -4,15 +4,25 @@
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.piggy-card-body {
+  display: flex;
   flex-direction: column;
   gap: var(--space-2);
   align-items: flex-start;
+  flex: 1;
+  min-width: 0;
 }
 
 .piggy-card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-3);
   width: 100%;
 }
 
@@ -25,13 +35,20 @@
 }
 
 .piggy-card-balance {
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 500;
   color: var(--color-accent-ink);
 }
 
 .piggy-card p {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--color-accent-strong);
   margin-bottom: var(--space-2);
+  max-width: 420px;
+}
+
+.piggy-card-art { flex: 0 0 auto; }
+
+@media (max-width: 600px) {
+  .piggy-card-art { display: none; }
 }

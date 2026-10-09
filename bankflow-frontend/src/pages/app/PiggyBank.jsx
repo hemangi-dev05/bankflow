@@ -7,6 +7,7 @@ import { ACCOUNT_TYPE_LABELS, formatCurrency, maskAccountNumber } from "../../ut
 import AccountSelector from "../../components/AccountSelector";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import FormField from "../../components/FormField";
+import PiggyIllustration from "../../components/PiggyIllustration";
 import "./PiggyBank.css";
 
 export default function PiggyBank() {
@@ -85,7 +86,10 @@ export default function PiggyBank() {
       )}
 
       <div className="piggy-balance-card">
-        <div>
+        <div className="piggy-balance-art" aria-hidden="true">
+          <PiggyIllustration size={104} />
+        </div>
+        <div className="piggy-balance-main">
           <span className="piggy-balance-label">Piggy Bank balance</span>
           <span className="piggy-balance-value mono">{formatCurrency(account.piggyBankBalance)}</span>
           <span className="piggy-balance-sub">
@@ -106,6 +110,15 @@ export default function PiggyBank() {
           )}
         </div>
       </div>
+
+      {Number(account.piggyBankBalance) === 0 && (
+        <p className="piggy-empty-hint">
+          Nothing saved yet.{" "}
+          {account.roundOffEnabled
+            ? "Make a payment, withdrawal or transfer and 5% will be set aside here."
+            : "Turn Piggy Bank on, then make a payment, withdrawal or transfer to start saving."}
+        </p>
+      )}
 
       <section className="piggy-explainer">
         <h2>How it works</h2>
