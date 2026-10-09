@@ -1,6 +1,11 @@
 package com.bankflow.banking.controller;
 
 import com.bankflow.banking.dto.TransactionResponse;
+import com.bankflow.banking.entity.Account;
+import com.bankflow.banking.exception.AccountNotFoundException;
+import com.bankflow.banking.exception.UnauthorizedAccessException;
+import com.bankflow.banking.repository.AccountRepository;
+import com.bankflow.banking.security.SecurityUtils;
 import com.bankflow.banking.service.TransactionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,13 +21,28 @@ import java.util.stream.Collectors;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final AccountRepository accountRepository;
+    private final SecurityUtils securityUtils;
 
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(TransactionService transactionService,
+                                 AccountRepository accountRepository,
+                                 SecurityUtils securityUtils) {
         this.transactionService = transactionService;
+        this.accountRepository = accountRepository;
+        this.securityUtils = securityUtils;
+    }
+
+    private void verifyOwnership(Long accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
+        if (!account.getOwner().getId().equals(securityUtils.getCurrentUser().getId())) {
+            throw new UnauthorizedAccessException("You do not have access to this account");
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<TransactionResponse>> getFullHistory(@PathVariable Long accountId) {
+        verifyOwnership(accountId);
         List<TransactionResponse> history = transactionService.getFullHistory(accountId).stream()
                 .map(TransactionResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -31,6 +51,7 @@ public class TransactionController {
 
     @GetMapping("/mini-statement")
     public ResponseEntity<List<TransactionResponse>> getMiniStatement(@PathVariable Long accountId) {
+        verifyOwnership(accountId);
         List<TransactionResponse> statement = transactionService.getMiniStatement(accountId).stream()
                 .map(TransactionResponse::fromEntity)
                 .collect(Collectors.toList());
