@@ -1,182 +1,152 @@
-# BankFlow
+<h1 align="center">BankFlow</h1>
 
-A full-stack digital banking application. A Spring Boot REST API secured with JWT sits behind a React single-page app, with safe money handling, per-user authorization and a "Piggy Bank" feature that sets aside savings automatically.
+<p align="center">
+  A full-stack banking application built with Spring Boot, JWT security, MySQL and React.
+</p>
 
-<!-- Replace with a screenshot or GIF: dashboard + piggy bank animation -->
-![BankFlow dashboard](docs/screenshots/dashboard.png)
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-17-orange?logo=openjdk&logoColor=white" alt="Java 17">
+  <img src="https://img.shields.io/badge/Spring%20Boot-3.2.5-6DB33F?logo=springboot&logoColor=white" alt="Spring Boot 3.2.5">
+  <img src="https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white" alt="MySQL">
+  <img src="https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black" alt="React">
+  <img src="https://img.shields.io/badge/Maven-C71A36?logo=apachemaven&logoColor=white" alt="Maven">
+</p>
 
-## Highlights
+## Overview
 
-- **JWT authentication and authorization.** Stateless sessions, BCrypt password hashing and a custom auth filter. Every account operation checks that the logged-in user owns the account, so one user can never act on another's money (403 on violation, clean JSON 401 on a missing or invalid token).
-- **Correct money handling.** All amounts use `BigDecimal`, never floating point. Debits, credits and transfers run inside transactions.
-- **Concurrency safety.** Optimistic locking (`@Version`) on accounts prevents lost updates when two requests change the same balance; conflicts return `409 Conflict`.
-- **Smart Piggy Bank.** An opt-in feature that sets aside 5% of each withdrawal, payment or transfer (capped at ₹100 per transaction) into a separate savings balance that can be withdrawn at any time.
-- **Validation and error handling.** Bean Validation on request DTOs and a global exception handler that maps each failure to a proper HTTP status and a clear message.
-- **Polished UI.** Responsive layout, animated page transitions and a looping piggy bank animation built with framer-motion, with `prefers-reduced-motion` respected.
+BankFlow lets users open savings or current accounts, deposit, withdraw, pay and transfer money, and review their transaction history. An optional Piggy Bank setting automatically sets aside a share of every outgoing transaction as savings.
 
-## Tech Stack
+The backend is a layered Spring Boot REST API secured with stateless JWT authentication. The frontend is a React single-page app built with Vite.
 
-| Layer | Technologies |
-|-------|--------------|
-| Backend | Java 17, Spring Boot, Spring Security, JWT, Spring Data JPA, Bean Validation |
-| Database | MySQL |
-| Frontend | React, Vite, React Router, framer-motion, lucide-react |
-| Testing | JUnit |
-| Build | Maven (backend), npm (frontend) |
+## Screenshots
 
-## Architecture
-
-```
-React (Vite)
-   │  Authorization: Bearer <JWT>
-   ▼
-JWT Auth Filter ──► SecurityContext (authenticated user)
-   ▼
-Controllers  ──►  Services (ownership checks, business rules, @Transactional)
-   ▼
-Spring Data JPA  ──►  MySQL
-```
-
-**Key design decisions**
-
-| Decision | Why |
-|----------|-----|
-| `BigDecimal` for all amounts | Avoids floating-point rounding errors in financial calculations |
-| Optimistic locking on `Account` | Prevents lost updates from concurrent balance changes without holding database locks |
-| Ownership check in the service layer | Authentication alone is not enough; the service verifies the caller owns the account being acted on |
-| Response DTOs instead of entities | Keeps password hashes and internal fields out of API responses |
-| Separate `piggyBankBalance` field | Savings are tracked independently of the spendable balance |
-| Secrets via environment variables | No credentials or JWT secret in source control |
+<table>
+  <tr>
+    <td align="center"><b>Home</b><br><img src="docs/screenshots/home.png" alt="Home page" width="420"></td>
+    <td align="center"><b>Dashboard</b><br><img src="docs/screenshots/dashboard.png" alt="Dashboard" width="420"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Piggy Bank</b><br><img src="docs/screenshots/piggy-bank.png" alt="Piggy Bank" width="420"></td>
+    <td align="center"><b>Transaction history</b><br><img src="docs/screenshots/transaction-history.png" alt="Transaction history" width="420"></td>
+  </tr>
+</table>
 
 ## Features
 
-- User signup and login with JWT authentication, plus password reset
-- Open and look up bank accounts (savings and current)
+- Signup, login and password reset
+- Savings and current accounts, with lookup by account number
 - Deposit, withdraw, pay and transfer between accounts
-- Piggy Bank savings with an on/off toggle and withdrawals back to the main balance
-- Full transaction history and a mini statement for each account
-- Per-user data isolation and consistent error responses
+- Piggy Bank: 5% of each withdrawal, payment or transfer (capped at ₹100) is moved into a separate savings balance, which can be withdrawn at any time
+- Transaction history with filters, and a mini statement per account
+- Dashboard with total balance and recent activity
 
-## API Reference
+## Tech stack
 
-Signup, login and password reset are public. All other endpoints require an `Authorization: Bearer <token>` header.
+| Layer | Technologies |
+|---|---|
+| Backend | Java 17, Spring Boot 3.2.5, Spring Security, Spring Data JPA (Hibernate), Bean Validation, Lombok |
+| Database | MySQL |
+| Frontend | React, Vite, React Router, framer-motion |
+| Build | Maven, npm |
 
-### Users (`/api/users`)
+## Architecture
+
+The API follows a conventional layered design:
+
+```
+Controller  ->  Service (interface + impl)  ->  Repository  ->  MySQL
+     |
+    DTOs in and out, entities never exposed directly
+```
+
+```
+backend/bankflow/src/main/java/com/bankflow/banking/
+├── config/        security and web configuration
+├── controller/    REST endpoints
+├── service/       business logic (interfaces + impl)
+├── repository/    Spring Data JPA repositories
+├── entity/        User, Account, Transaction and enums
+├── dto/           request and response objects
+├── security/      JWT filter, JWT service, auth entry point, user details
+├── validator/     account business-rule checks
+└── exception/     custom exceptions and global handler
+```
+
+### Security
+
+- Stateless authentication: a JWT filter validates the `Authorization: Bearer` token on each request. Tokens expire after 10 hours.
+- Requests without a valid token receive a JSON 401 from a custom authentication entry point.
+- Authorization is per account: the account and transaction endpoints compare the account's owner with the authenticated user and return 403 on a mismatch.
+
+### Data integrity
+
+- Balances are `BigDecimal` columns with fixed precision and scale.
+- `Account` carries a `@Version` field for optimistic locking, so concurrent updates to the same balance cannot silently overwrite each other.
+- Piggy Bank savings are stored in a separate `piggyBankBalance` column.
+
+### Error handling
+
+A global exception handler maps domain exceptions (insufficient balance, invalid amount, account not found, unauthorized access) to HTTP statuses with a consistent JSON body.
+
+## API
+
+Signup, login and password reset are public. All other endpoints require a bearer token.
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/signup` | Register a new user |
-| POST | `/login` | Log in and receive a JWT |
-| POST | `/reset-password` | Reset a user's password |
+|---|---|---|
+| POST | `/api/users/signup` | Register |
+| POST | `/api/users/login` | Log in, returns a JWT |
+| POST | `/api/users/reset-password` | Reset password |
+| POST | `/api/accounts` | Open an account |
+| GET | `/api/accounts/user/{userId}` | List a user's accounts |
+| GET | `/api/accounts/lookup` | Look up an account |
+| PUT | `/api/accounts/{id}/deposit` | Deposit |
+| PUT | `/api/accounts/{id}/withdraw` | Withdraw |
+| PUT | `/api/accounts/{id}/pay` | Pay |
+| POST | `/api/accounts/{id}/transfer` | Transfer |
+| PUT | `/api/accounts/{id}/round-off` | Enable or disable Piggy Bank |
+| PUT | `/api/accounts/{id}/piggy-bank/withdraw` | Withdraw Piggy Bank savings |
+| GET | `/api/accounts/{id}/transactions` | Full transaction history |
+| GET | `/api/accounts/{id}/transactions/mini-statement` | Recent transactions |
 
-### Accounts (`/api/accounts`)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/` | Create an account |
-| GET | `/user/{userId}` | Get a user's accounts |
-| GET | `/lookup` | Look up an account |
-| PUT | `/{id}/deposit` | Deposit money |
-| PUT | `/{id}/withdraw` | Withdraw money |
-| PUT | `/{id}/pay` | Make a payment |
-| POST | `/{id}/transfer` | Transfer to another account |
-| PUT | `/{id}/round-off` | Turn Piggy Bank on or off |
-| PUT | `/{id}/piggy-bank/withdraw` | Withdraw from the Piggy Bank |
-
-### Transactions (`/api/accounts/{accountId}/transactions`)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | List all transactions |
-| GET | `/mini-statement` | Get the most recent transactions |
-
-### Error responses
-
-| Status | Meaning |
-|--------|---------|
-| 400 | Validation failed or invalid amount |
-| 401 | Missing or invalid token |
-| 403 | Account belongs to another user |
-| 404 | Account or user not found |
-| 409 | Concurrent update conflict |
-
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
-- Java 17
-- Maven
-- Node.js 18+
-- MySQL
+Java 17, Maven, Node.js and MySQL.
 
 ### Backend
 
-1. Create a MySQL database (the name is set in `spring.datasource.url` in `application.properties`).
-2. Set these environment variables:
+1. Create an empty MySQL database. The name is set in `spring.datasource.url` in `src/main/resources/application.properties`.
+2. Provide the configuration through environment variables:
 
    | Variable | Description |
-   |----------|-------------|
-   | `DB_USERNAME` | Your MySQL username |
-   | `DB_PASSWORD` | Your MySQL password |
-   | `JWT_SECRET` | A long random string (32+ characters) |
+   |---|---|
+   | `DB_USERNAME` | MySQL username |
+   | `DB_PASSWORD` | MySQL password |
+   | `JWT_SECRET` | Signing secret, 32 or more characters |
 
-3. Start the API:
+3. Run the application:
 
    ```bash
    cd backend/bankflow
    mvn spring-boot:run
    ```
 
-   The API runs on `http://localhost:8080`.
+   The API starts on `http://localhost:8080`.
 
 ### Frontend
 
 ```bash
 cd bankflow-frontend
-cp .env.example .env   # then fill in the values
+cp .env.example .env
 npm install
 npm run dev
 ```
 
-The app runs on `http://localhost:5173`.
-
-### Running the tests
-
-```bash
-cd backend/bankflow
-mvn test
-```
-
-## Project Structure
-
-```
-bankflow-app/
-├── backend/bankflow/          # Spring Boot API
-│   └── src/main/java/com/bankflow/banking/
-│       ├── config/            # Security configuration
-│       ├── controller/        # REST endpoints
-│       ├── service/           # Business logic
-│       ├── repository/        # JPA repositories
-│       ├── entity/            # User, Account, Transaction
-│       ├── dto/               # Request and response objects
-│       └── exception/         # Custom exceptions and global handler
-└── bankflow-frontend/         # React app
-    └── src/
-        ├── api/               # API client
-        ├── components/        # Reusable UI components
-        ├── context/           # Auth, accounts and toast state
-        ├── layouts/           # App shell
-        └── pages/             # Public and authenticated pages
-```
-
-## Roadmap
-
-- Recipient lookup by phone number for transfers
-- Refresh tokens and token revocation
-- Docker Compose setup for one-command local start
-- Deployed demo
+The app starts on `http://localhost:5173`.
 
 ## Author
 
-**Hemangi Pandey**
+**Hemangi Pandey**  
 [LinkedIn](https://linkedin.com/in/hemangi-pandey) · [GitHub](https://github.com/hemangi-dev05)
